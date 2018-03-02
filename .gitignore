@@ -1,2 +1,2 @@
-./keras/ 
-./pytorch/
+keras/*
+pytorch/*
