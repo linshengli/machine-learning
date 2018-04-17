@@ -1,2 +1,9 @@
 keras/*
 pytorch/*
+cifar-10-cnn/*
+data/*
+天池/*
+Kaggle/*
+sklearn/*
+ML-advice.pdf
+installkeras.sh

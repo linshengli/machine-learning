@@ -1,0 +1,73 @@
+- 使用11.1的方法。
+
+    通过Gini重要性划分数据。Gini系数在决策树中用来对树的节点分裂，可以借用决策树实现对特征的选择。
+    1. 对数据预处理，正则化
+    2. 通过决策树回归，根据其Gini重要性排序。
+
+
+
+- 使用11.2的过滤式方法。
+    
+    过滤式方法与学习器无关，对每一个特征进行测试，衡量该特征和响应变量之间的关系，根据得分去除表现差的特征。
+    1. 对数据预处理，正则化。
+    2. 如果X，Y服从正态分布，记R=$\frac{(X-\overline{X})^T(Y-\overline{Y})}{std(X)std(Y)}$,
+R就代表样本相关系数。记F=$\frac{R^2}{1-R^2}(n-2)$，如果X，Y都服从正态分布的话，这个F服从F(1,n−2)。如果对F开方，它就服从t(n−2)分布。
+F值越大，则自变量与因变量之间的关系越大。
+
+结果:
+使用`RTT_median`:
+1. 使用决策树划分重要性：
+```
+destIp_longitude	0.389940651
+appname_num	        0.260992514
+synHour	                0.170103431
+carrier_num	        0.075120264
+destIp_latitude	        0.064734845
+netType_num	        0.028299333
+longitude	        0.009641996
+signal	                0.001095923
+latitude	        5.89E-05
+speed	                1.21E-05
+```
+2. 使用过滤式方法的结果:
+```
+netType_num	        3801.25981
+speed	                3404.919269
+destIp_longitude	544.0825253
+destIp_latitude	        440.206826
+appname_num	        224.897856
+signal	                210.4634504
+carrier_num	        10.50807701
+latitude	        7.951935916
+longitude	        4.864824225
+synHour	                2.248958906
+```
+使用`RTT_average`:
+1. 使用决策树：
+```
+synHour         	0.278692073
+carrier_num	        0.218127368
+appname_num     	0.174079042
+destIp_longitude	0.083584814
+signal	                0.053031723
+netType_num	        0.052574452
+destIp_latitude	        0.047352005
+latitude	        0.036950809
+longitude	        0.029727751
+speed	                0.025879963
+```
+2. 使用过滤式方法的结果:	
+```
+netType_num	        4621.847698
+speed	                4542.594816
+signal	                200.2856742
+destIp_longitude	152.468613
+destIp_latitude	        94.51821413
+appname_num	        64.44905754
+latitude	        5.990058585
+synHour	                3.588793598
+longitude	        3.107274345
+carrier_num	        0.208859048
+```
+
+- 由于rtt大多数情况下是比较小的，而一旦出现问题，rtt会变得非常大，所以应该使用rtt_median.

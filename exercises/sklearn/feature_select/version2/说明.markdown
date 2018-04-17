@@ -1,0 +1,108 @@
+1. 说明
+代码主要分为三个函数:
+```
+'''
+D是Y的以为列向量,D为离散值
+类型为numpy.ndarray
+求解D的信息熵.
+'''
+def Ent(D, types=None):
+    shape = D.shape
+    if shape.__len__() != 1:
+        print("参数需为列向量")
+        return
+    total = D.size
+    dictMap = {}
+    for item in D:
+        if dictMap.__contains__(item):
+            dictMap[item] += 1
+        else:
+            dictMap[item] = 1
+    valueArr = []
+    for (key, value) in dictMap.items():
+        pk = (value * 1.0) / total
+        valueArr.append(pk)
+    return -np.sum(valueArr * np.log2(valueArr))
+```
+Ent用来计算信息熵。
+
+```
+'''
+@:param A是pd的DateFrame,包含所有属性（包括最后的Y） 保证A多于两列
+@:param V_name是用来划分的属性名称,是一个属性列表。
+@:param C_name是Y值名称
+'''
+def Gain(A,V_name,C_name):
+    totalNum = A.shape[0]
+    Y = np.array(A[C_name])
+    totalEnt = Ent(Y)
+    temp = A.groupby(V_name)
+    valueArr = []
+    pks = []
+    for key,group in temp:
+        pks.append((1.0 * group.shape[0]) / totalNum)
+        tp = np.array(group[C_name])
+        valueArr.append(Ent(tp))
+    return totalEnt - np.sum(np.array(pks) * np.array(valueArr))
+```
+用来计算信息增益。
+
+
+```
+def getImportance():
+    data = pd.read_csv("/home/tbxsx/Code/learnMachineLearning/exercises/sklearn/feature_select/version2/stretch_instance_lte_USA.csv")
+    featureNum = FEATURE_NUM
+    iter = 0
+    #用来保存贪心法得到的所有feature
+    selectFeatures = []
+    #保存的是使用k个feature与不适用feature之间的信息增益
+    selectGains = []
+    #用来保存所有未使用的feature
+    featureNames = data.columns[0:featureNum].tolist().copy()
+    while iter < featureNum:
+        maxGain = sys.float_info.min
+        for item in featureNames:
+            temp = selectFeatures.copy()
+            temp.append(item)
+            tempGain = Gain(data, temp, "RTT_label")
+            print("TempGain:")
+            print(temp)
+            print(tempGain)
+            if tempGain > maxGain:
+                maxItem = item
+                maxGain = tempGain
+        iter += 1
+        if maxGain < 0:
+            break
+        selectGains.append(maxGain)
+        selectFeatures.append(maxItem)
+        featureNames.remove(maxItem)
+        print("Iter:" + str(iter))
+        print("Select feature:")
+        print(maxItem)
+        print("gain:")
+        print(maxGain)
+    print(selectFeatures)
+    print(selectGains)
+    return selectFeatures,selectGains
+```
+
+
+1. 结果:
+
+```
+['destIp_longitude', 'appname_num', 'synHour', 'carrier_num', 'signal', 'destIp_latitude', 'longitude', 'latitude', 'netType_num', 'speed']
+[0.2319896568128872, 0.44770009074496353, 0.6437473392434229, 0.7274290008526886, 0.7641828061386005, 0.7905711263718715, 0.8091502321835629, 0.8146589473918, 0.8146589473918, 0.8146589473918]
+```
+结果中的数字结果是第i层到第0层之间的信息增益。
+
+需要7个特征，排序是:
+```
+'destIp_longitude'
+'appname_num'
+'synHour'
+'carrier_num'
+'signal'
+'destIp_latitude'
+'longitude'
+```
